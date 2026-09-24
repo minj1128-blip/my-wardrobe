@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>敏娟的超級衣櫃系統</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea,
+        button {
+            margin-top: 6px;
+            padding: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #wardrobeList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .clothes-card {
+            width: 240px;
+            border: 1px solid #cccccc;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .clothes-card img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .condition-area {
+            margin-top: 8px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <h1>敏娟的超級衣櫃系統</h1>
+
+    <p>
+        上傳你的衣服，建立自己的電子衣櫃。
+    </p>
+
+    <h2>新增衣服</h2>
+
+
+    <div class="form-section">
+
+        <label for="photoInput">
+            衣服照片：
+        </label>
+
+        <br>
+
+        <input
+            id="photoInput"
+            type="file"
+            accept="image/*"
+        >
+
+    </div>
+
+
+    <div class="form-section">
+
+        <label for="mainCategoryInput">
+            衣服大類：
+        </label>
+
+        <br>
+
+        <input
+            id="mainCategoryInput"
+            type="text"
+            list="mainCategorySuggestions"
+            placeholder="選擇或自己輸入，例如：上著"
+        >
+
+        <datalist id="mainCategorySuggestions">
+
+            <option value="上著">
+
+            <option value="下著">
+
+            <option value="洋裝">
+
+            <option value="外套">
+
+        </datalist>
+
+    </div>
+
+
+    <div class="form-section">
+
+        <label for="subCategoryInput">
+            細分類：
+        </label>
+
+        <br>
+
+        <input
+            id="subCategoryInput"
+            type="text"
+            list="subCategorySuggestions"
+            placeholder="例如：襯衫"
+        >
+
+        <datalist id="subCategorySuggestions">
+
+        </datalist>
+
+    </div>
+
+
+    <div class="form-section">
+
+        <label for="colorInput">
+            顏色名稱：
+        </label>
+
+        <br>
+
+        <input
+            id="colorInput"
+            type="text"
+            list="colorSuggestions"
+            placeholder="輸入或選擇顏色"
+        >
+
+        <datalist id="colorSuggestions">
+
+            <option value="黑色">
+
+            <option value="白色">
+
+            <option value="灰色">
+
+            <option value="米白色">
+
+            <option value="棕色">
+
+            <option value="紅色">
+
+            <option value="藍色">
+
+            <option value="綠色">
+
+            <option value="黃色">
+
+            <option value="紫色">
+
+            <option value="粉紅色">
+
+            <option value="卡其色">
+
+        </datalist>
+
+    </div>
+
+
+    <div class="form-section">
+
+        <label for="colorPicker">
+            實際顏色（可不選）：
+        </label>
+
+        <br>
+
+        <input
+            id="colorPicker"
+            type="color"
+        >
+
+        <input
+            id="colorHexInput"
+            type="hidden"
+            value=""
+        >
+
+    </div>
+
+
+    <div class="form-section">
+
+        <label>
+            衣服狀況：
+        </label>
+
+        <div class="condition-area">
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="condition"
+                    value="泛黃"
+                >
+                泛黃
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="condition"
+                    value="污漬"
+                >
+                污漬
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="condition"
+                    value="少扣子"
+                >
+                少扣子
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="condition"
+                    value="破損"
+                >
+                破損
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="condition"
+                    value="起毛球"
+                >
+                起毛球
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="condition"
+                    value="褪色"
+                >
+                褪色
+            </label>
+
+        </div>
+
+    </div>
+
+
+    <div class="form-section">
+
+        <label for="notesInput">
+            備註：
+        </label>
+
+        <br>
+
+        <textarea
+            id="notesInput"
+            rows="5"
+            placeholder="例如：右袖口明顯泛黃，第二顆扣子遺失"
+        ></textarea>
+
+    </div>
+
+
+    <button id="addButton">
+        加入衣櫃
+    </button>
+
+
+    <hr>
+
+
+    <h2>我的衣櫃</h2>
+
+
+    <div id="wardrobeList">
+
+    </div>
+
+
+    <script>
+
+        const subCategoryMap = {
+
+            "上著": [
+                "T恤",
+                "襯衫",
+                "背心",
+                "針織衫",
+                "帽T"
+            ],
+
+            "下著": [
+                "長褲",
+                "短褲",
+                "牛仔褲",
+                "長裙",
+                "短裙"
+            ],
+
+            "洋裝": [
+                "連身裙",
+                "襯衫洋裝",
+                "吊帶洋裝",
+                "針織洋裝"
+            ],
+
+            "外套": [
+                "西裝外套",
+                "針織外套",
+                "風衣",
+                "大衣",
+                "夾克"
+            ]
+
+        };
+
+
+        const mainCategoryInput =
+            document.getElementById("mainCategoryInput");
+
+
+        const subCategoryInput =
+            document.getElementById("subCategoryInput");
+
+
+        const subCategorySuggestions =
+            document.getElementById("subCategorySuggestions");
+
+
+        const colorPicker =
+            document.getElementById("colorPicker");
+
+
+        const colorHexInput =
+            document.getElementById("colorHexInput");
+
+
+        const addButton =
+            document.getElementById("addButton");
+
+
+        const wardrobeList =
+            document.getElementById("wardrobeList");
+
+
+        mainCategoryInput.addEventListener(
+            "input",
+            updateSubCategorySuggestions
+        );
+
+
+        function updateSubCategorySuggestions() {
+
+            const mainCategory =
+                mainCategoryInput.value;
+
+            subCategorySuggestions.innerHTML = "";
+
+            const suggestions =
+                subCategoryMap[mainCategory] || [];
+
+            suggestions.forEach(
+                function (suggestion) {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value = suggestion;
+
+                    subCategorySuggestions.appendChild(option);
+
+                }
+            );
+
+        }
+
+
+        colorPicker.addEventListener(
+            "input",
+            function () {
+
+                colorHexInput.value =
+                    colorPicker.value;
+
+            }
+        );
+
+
+        const clothes = [];
+
+
+        addButton.addEventListener(
+            "click",
+            function () {
+
+                const photoInput =
+                    document.getElementById("photoInput");
+
+                const photoFile =
+                    photoInput.files[0];
+
+                if (!photoFile) {
+
+                    alert("請先選擇一張衣服照片。");
+
+                    return;
+
+                }
+
+
+                const mainCategory =
+                    mainCategoryInput.value.trim();
+
+
+                const subCategory =
+                    subCategoryInput.value.trim();
+
+
+                if (!mainCategory || !subCategory) {
+
+                    alert("請填寫衣服大類與細分類。");
+
+                    return;
+
+                }
+
+
+                const colorName =
+                    document
+                        .getElementById("colorInput")
+                        .value
+                        .trim();
+
+
+                const colorHex =
+                    colorHexInput.value;
+
+
+                const checkedConditions =
+                    document.querySelectorAll(
+                        'input[name="condition"]:checked'
+                    );
+
+
+                const conditions = [];
+
+
+                checkedConditions.forEach(
+                    function (checkbox) {
+
+                        conditions.push(
+                            checkbox.value
+                        );
+
+                    }
+                );
+
+
+                const notes =
+                    document
+                        .getElementById("notesInput")
+                        .value
+                        .trim();
+
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function (event) {
+
+                        const clothesItem = {
+
+                            image:
+                                event.target.result,
+
+                            mainCategory:
+                                mainCategory,
+
+                            subCategory:
+                                subCategory,
+
+                            colorName:
+                                colorName,
+
+                            colorHex:
+                                colorHex,
+
+                            conditions:
+                                conditions,
+
+                            notes:
+                                notes
+
+                        };
+
+
+                        clothes.push(
+                            clothesItem
+                        );
+
+
+                        renderWardrobe();
+
+
+                        photoInput.value = "";
+
+                        mainCategoryInput.value = "";
+
+                        subCategoryInput.value = "";
+
+                        document
+                            .getElementById("colorInput")
+                            .value = "";
+
+                        colorHexInput.value = "";
+
+                        document
+                            .getElementById("notesInput")
+                            .value = "";
+
+
+                        checkedConditions.forEach(
+                            function (checkbox) {
+
+                                checkbox.checked = false;
+
+                            }
+                        );
+
+
+                        subCategorySuggestions.innerHTML = "";
+
+                    };
+
+
+                reader.readAsDataURL(
+                    photoFile
+                );
+
+            }
+        );
+
+
+        function renderWardrobe() {
+
+            wardrobeList.innerHTML = "";
+
+
+            clothes.forEach(
+                function (item) {
+
+                    const card =
+                        document.createElement("div");
+
+
+                    card.className =
+                        "clothes-card";
+
+
+                    const conditionText =
+                        item.conditions.length > 0
+                            ? item.conditions.join("、")
+                            : "無特別註記";
+
+
+                    card.innerHTML = `
+
+                        <img
+                            src="${item.image}"
+                            alt="衣服照片"
+                        >
+
+                        <h3>
+                            ${item.mainCategory}
+                            ／
+                            ${item.subCategory}
+                        </h3>
+
+                        <p>
+                            顏色名稱：
+                            ${item.colorName || "未填寫"}
+                        </p>
+
+                        ${
+                            item.colorHex
+
+                            ?
+
+                            `
+                                <p>
+                                    實際色碼：
+                                    ${item.colorHex}
+                                </p>
+                            `
+
+                            :
+
+                            ""
+                        }
+
+                        <p>
+                            衣服狀況：
+                            ${conditionText}
+                        </p>
+
+                        <p>
+                            備註：
+                            ${item.notes || "無"}
+                        </p>
+
+                    `;
+
+
+                    wardrobeList.appendChild(
+                        card
+                    );
+
+                }
+            );
+
+        }
+
+    </script>
+
+</body>
+
+</html>
