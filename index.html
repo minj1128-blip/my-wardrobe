@@ -368,7 +368,50 @@
     </div>
 
 
-    <script>
+    <script type="module">
+
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            signOut,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            query,
+            orderBy,
+            onSnapshot,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB5nVOspuD_4dFdAUrWIp1p3yb9TgGvF38",
+            authDomain: "my-wardrobe-af6bb.firebaseapp.com",
+            projectId: "my-wardrobe-af6bb",
+            storageBucket: "my-wardrobe-af6bb.firebasestorage.app",
+            messagingSenderId: "843220444168",
+            appId: "1:843220444168:web:17c48172a344fbbcda9dbd",
+            measurementId: "G-2Q5PXZ3B38"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+
+        const auth = getAuth(app);
+
+        const db = getFirestore(app);
+
+        const provider = new GoogleAuthProvider();
+
 
         const subCategoryMap = {
 
@@ -409,29 +452,51 @@
         const mainCategoryInput =
             document.getElementById("mainCategoryInput");
 
-
         const subCategoryInput =
             document.getElementById("subCategoryInput");
-
 
         const subCategorySuggestions =
             document.getElementById("subCategorySuggestions");
 
-
         const colorPicker =
             document.getElementById("colorPicker");
-
 
         const colorHexInput =
             document.getElementById("colorHexInput");
 
-
         const addButton =
             document.getElementById("addButton");
 
-
         const wardrobeList =
             document.getElementById("wardrobeList");
+
+        const googleLoginButton =
+            document.getElementById("googleLoginButton");
+
+        const logoutButton =
+            document.getElementById("logoutButton");
+
+        const userInfo =
+            document.getElementById("userInfo");
+
+        const userName =
+            document.getElementById("userName");
+
+        const userEmail =
+            document.getElementById("userEmail");
+
+        const userPhoto =
+            document.getElementById("userPhoto");
+
+        const appArea =
+            document.getElementById("appArea");
+
+
+        let currentUser = null;
+
+        let clothes = [];
+
+        let unsubscribeClothes = null;
 
 
         mainCategoryInput.addEventListener(
@@ -475,300 +540,6 @@
 
             }
         );
-
-
-        const clothes = [];
-
-
-        addButton.addEventListener(
-            "click",
-            function () {
-
-                const photoInput =
-                    document.getElementById("photoInput");
-
-                const photoFile =
-                    photoInput.files[0];
-
-                if (!photoFile) {
-
-                    alert("請先選擇一張衣服照片。");
-
-                    return;
-
-                }
-
-
-                const mainCategory =
-                    mainCategoryInput.value.trim();
-
-
-                const subCategory =
-                    subCategoryInput.value.trim();
-
-
-                if (!mainCategory || !subCategory) {
-
-                    alert("請填寫衣服大類與細分類。");
-
-                    return;
-
-                }
-
-
-                const colorName =
-                    document
-                        .getElementById("colorInput")
-                        .value
-                        .trim();
-
-
-                const colorHex =
-                    colorHexInput.value;
-
-
-                const checkedConditions =
-                    document.querySelectorAll(
-                        'input[name="condition"]:checked'
-                    );
-
-
-                const conditions = [];
-
-
-                checkedConditions.forEach(
-                    function (checkbox) {
-
-                        conditions.push(
-                            checkbox.value
-                        );
-
-                    }
-                );
-
-
-                const notes =
-                    document
-                        .getElementById("notesInput")
-                        .value
-                        .trim();
-
-
-                const reader =
-                    new FileReader();
-
-
-                reader.onload =
-                    function (event) {
-
-                        const clothesItem = {
-
-                            image:
-                                event.target.result,
-
-                            mainCategory:
-                                mainCategory,
-
-                            subCategory:
-                                subCategory,
-
-                            colorName:
-                                colorName,
-
-                            colorHex:
-                                colorHex,
-
-                            conditions:
-                                conditions,
-
-                            notes:
-                                notes
-
-                        };
-
-
-                        clothes.push(
-                            clothesItem
-                        );
-
-
-                        renderWardrobe();
-
-
-                        photoInput.value = "";
-
-                        mainCategoryInput.value = "";
-
-                        subCategoryInput.value = "";
-
-                        document
-                            .getElementById("colorInput")
-                            .value = "";
-
-                        colorHexInput.value = "";
-
-                        document
-                            .getElementById("notesInput")
-                            .value = "";
-
-
-                        checkedConditions.forEach(
-                            function (checkbox) {
-
-                                checkbox.checked = false;
-
-                            }
-                        );
-
-
-                        subCategorySuggestions.innerHTML = "";
-
-                    };
-
-
-                reader.readAsDataURL(
-                    photoFile
-                );
-
-            }
-        );
-
-
-        function renderWardrobe() {
-
-            wardrobeList.innerHTML = "";
-
-
-            clothes.forEach(
-                function (item) {
-
-                    const card =
-                        document.createElement("div");
-
-
-                    card.className =
-                        "clothes-card";
-
-
-                    const conditionText =
-                        item.conditions.length > 0
-                            ? item.conditions.join("、")
-                            : "無特別註記";
-
-
-                    card.innerHTML = `
-
-                        <img
-                            src="${item.image}"
-                            alt="衣服照片"
-                        >
-
-                        <h3>
-                            ${item.mainCategory}
-                            ／
-                            ${item.subCategory}
-                        </h3>
-
-                        <p>
-                            顏色名稱：
-                            ${item.colorName || "未填寫"}
-                        </p>
-
-                        ${
-                            item.colorHex
-
-                            ?
-
-                            `
-                                <p>
-                                    實際色碼：
-                                    ${item.colorHex}
-                                </p>
-                            `
-
-                            :
-
-                            ""
-                        }
-
-                        <p>
-                            衣服狀況：
-                            ${conditionText}
-                        </p>
-
-                        <p>
-                            備註：
-                            ${item.notes || "無"}
-                        </p>
-
-                    `;
-
-
-                    wardrobeList.appendChild(
-                        card
-                    );
-
-                }
-            );
-
-        }
-
-    </script>
-
-
-    <script type="module">
-
-        import {
-            initializeApp
-        } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-
-        import {
-            getAuth,
-            GoogleAuthProvider,
-            signInWithPopup,
-            signOut,
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyB5nVOspuD_4dFdAUrWIp1p3yb9TgGvF38",
-            authDomain: "my-wardrobe-af6bb.firebaseapp.com",
-            projectId: "my-wardrobe-af6bb",
-            storageBucket: "my-wardrobe-af6bb.firebasestorage.app",
-            messagingSenderId: "843220444168",
-            appId: "1:843220444168:web:17c48172a344fbbcda9dbd",
-            measurementId: "G-2Q5PXZ3B38"
-        };
-
-
-        const app = initializeApp(firebaseConfig);
-
-        const auth = getAuth(app);
-
-        const provider = new GoogleAuthProvider();
-
-
-        const googleLoginButton =
-            document.getElementById("googleLoginButton");
-
-        const logoutButton =
-            document.getElementById("logoutButton");
-
-        const userInfo =
-            document.getElementById("userInfo");
-
-        const userName =
-            document.getElementById("userName");
-
-        const userEmail =
-            document.getElementById("userEmail");
-
-        const userPhoto =
-            document.getElementById("userPhoto");
-
-        const appArea =
-            document.getElementById("appArea");
 
 
         googleLoginButton.addEventListener(
@@ -824,6 +595,17 @@
             auth,
             function (user) {
 
+                if (unsubscribeClothes) {
+
+                    unsubscribeClothes();
+                    unsubscribeClothes = null;
+
+                }
+
+
+                currentUser = user;
+
+
                 if (user) {
 
                     googleLoginButton.hidden = true;
@@ -849,10 +631,7 @@
 
                     }
 
-                    console.log(
-                        "目前登入者 UID：",
-                        user.uid
-                    );
+                    subscribeToWardrobe(user.uid);
 
                 } else {
 
@@ -866,10 +645,430 @@
                     userEmail.textContent = "";
                     userPhoto.hidden = true;
 
+                    clothes = [];
+                    renderWardrobe();
+
                 }
 
             }
         );
+
+
+        function subscribeToWardrobe(uid) {
+
+            const clothesCollection =
+                collection(
+                    db,
+                    "users",
+                    uid,
+                    "clothes"
+                );
+
+            const clothesQuery =
+                query(
+                    clothesCollection,
+                    orderBy("createdAt", "desc")
+                );
+
+            unsubscribeClothes =
+                onSnapshot(
+                    clothesQuery,
+                    function (snapshot) {
+
+                        clothes = snapshot.docs.map(
+                            function (documentSnapshot) {
+
+                                return {
+                                    id: documentSnapshot.id,
+                                    ...documentSnapshot.data()
+                                };
+
+                            }
+                        );
+
+                        renderWardrobe();
+
+                    },
+                    function (error) {
+
+                        console.error(error);
+
+                        alert(
+                            "讀取雲端衣櫃失敗：" +
+                            error.message
+                        );
+
+                    }
+                );
+
+        }
+
+
+        addButton.addEventListener(
+            "click",
+            async function () {
+
+                if (!currentUser) {
+
+                    alert("請先使用 Google 帳戶登入。");
+                    return;
+
+                }
+
+
+                const photoInput =
+                    document.getElementById("photoInput");
+
+                const photoFile =
+                    photoInput.files[0];
+
+                if (!photoFile) {
+
+                    alert("請先選擇一張衣服照片。");
+                    return;
+
+                }
+
+
+                const mainCategory =
+                    mainCategoryInput.value.trim();
+
+                const subCategory =
+                    subCategoryInput.value.trim();
+
+                if (!mainCategory || !subCategory) {
+
+                    alert("請填寫衣服大類與細分類。");
+                    return;
+
+                }
+
+
+                const colorName =
+                    document
+                        .getElementById("colorInput")
+                        .value
+                        .trim();
+
+                const colorHex =
+                    colorHexInput.value;
+
+                const checkedConditions =
+                    document.querySelectorAll(
+                        'input[name="condition"]:checked'
+                    );
+
+                const conditions = [];
+
+                checkedConditions.forEach(
+                    function (checkbox) {
+
+                        conditions.push(
+                            checkbox.value
+                        );
+
+                    }
+                );
+
+                const notes =
+                    document
+                        .getElementById("notesInput")
+                        .value
+                        .trim();
+
+
+                addButton.disabled = true;
+                addButton.textContent = "儲存中...";
+
+
+                try {
+
+                    const compressedImage =
+                        await compressImage(photoFile);
+
+                    const clothesCollection =
+                        collection(
+                            db,
+                            "users",
+                            currentUser.uid,
+                            "clothes"
+                        );
+
+                    await addDoc(
+                        clothesCollection,
+                        {
+                            image: compressedImage,
+                            mainCategory: mainCategory,
+                            subCategory: subCategory,
+                            colorName: colorName,
+                            colorHex: colorHex,
+                            conditions: conditions,
+                            notes: notes,
+                            createdAt: serverTimestamp()
+                        }
+                    );
+
+                    clearForm(checkedConditions);
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "儲存衣服失敗：" +
+                        error.message
+                    );
+
+                } finally {
+
+                    addButton.disabled = false;
+                    addButton.textContent = "加入衣櫃";
+
+                }
+
+            }
+        );
+
+
+        function clearForm(checkedConditions) {
+
+            document.getElementById("photoInput").value = "";
+
+            mainCategoryInput.value = "";
+
+            subCategoryInput.value = "";
+
+            document
+                .getElementById("colorInput")
+                .value = "";
+
+            colorHexInput.value = "";
+
+            document
+                .getElementById("notesInput")
+                .value = "";
+
+            checkedConditions.forEach(
+                function (checkbox) {
+
+                    checkbox.checked = false;
+
+                }
+            );
+
+            subCategorySuggestions.innerHTML = "";
+
+        }
+
+
+        function compressImage(file) {
+
+            return new Promise(
+                function (resolve, reject) {
+
+                    const reader = new FileReader();
+
+                    reader.onload =
+                        function (event) {
+
+                            const image = new Image();
+
+                            image.onload =
+                                function () {
+
+                                    const maxDimension = 700;
+
+                                    let width = image.width;
+                                    let height = image.height;
+
+                                    const largestSide =
+                                        Math.max(width, height);
+
+                                    if (largestSide > maxDimension) {
+
+                                        const scale =
+                                            maxDimension / largestSide;
+
+                                        width =
+                                            Math.round(width * scale);
+
+                                        height =
+                                            Math.round(height * scale);
+
+                                    }
+
+                                    const canvas =
+                                        document.createElement("canvas");
+
+                                    canvas.width = width;
+                                    canvas.height = height;
+
+                                    const context =
+                                        canvas.getContext("2d");
+
+                                    context.fillStyle = "#ffffff";
+                                    context.fillRect(
+                                        0,
+                                        0,
+                                        width,
+                                        height
+                                    );
+
+                                    context.drawImage(
+                                        image,
+                                        0,
+                                        0,
+                                        width,
+                                        height
+                                    );
+
+                                    let quality = 0.75;
+
+                                    let dataUrl =
+                                        canvas.toDataURL(
+                                            "image/jpeg",
+                                            quality
+                                        );
+
+                                    while (
+                                        new Blob([dataUrl]).size > 650000 &&
+                                        quality > 0.35
+                                    ) {
+
+                                        quality -= 0.1;
+
+                                        dataUrl =
+                                            canvas.toDataURL(
+                                                "image/jpeg",
+                                                quality
+                                            );
+
+                                    }
+
+                                    if (
+                                        new Blob([dataUrl]).size > 800000
+                                    ) {
+
+                                        reject(
+                                            new Error(
+                                                "照片壓縮後仍然太大，請改用較小的照片。"
+                                            )
+                                        );
+
+                                        return;
+
+                                    }
+
+                                    resolve(dataUrl);
+
+                                };
+
+                            image.onerror =
+                                function () {
+
+                                    reject(
+                                        new Error(
+                                            "無法讀取這張圖片。"
+                                        )
+                                    );
+
+                                };
+
+                            image.src = event.target.result;
+
+                        };
+
+                    reader.onerror =
+                        function () {
+
+                            reject(
+                                new Error(
+                                    "無法讀取圖片檔案。"
+                                )
+                            );
+
+                        };
+
+                    reader.readAsDataURL(file);
+
+                }
+            );
+
+        }
+
+
+        function renderWardrobe() {
+
+            wardrobeList.innerHTML = "";
+
+            clothes.forEach(
+                function (item) {
+
+                    const card =
+                        document.createElement("div");
+
+                    card.className =
+                        "clothes-card";
+
+                    const conditionText =
+                        item.conditions &&
+                        item.conditions.length > 0
+                            ? item.conditions.join("、")
+                            : "無特別註記";
+
+                    card.innerHTML = `
+
+                        <img
+                            src="${item.image}"
+                            alt="衣服照片"
+                        >
+
+                        <h3>
+                            ${item.mainCategory}
+                            ／
+                            ${item.subCategory}
+                        </h3>
+
+                        <p>
+                            顏色名稱：
+                            ${item.colorName || "未填寫"}
+                        </p>
+
+                        ${
+                            item.colorHex
+
+                            ?
+
+                            `
+                                <p>
+                                    實際色碼：
+                                    ${item.colorHex}
+                                </p>
+                            `
+
+                            :
+
+                            ""
+                        }
+
+                        <p>
+                            衣服狀況：
+                            ${conditionText}
+                        </p>
+
+                        <p>
+                            備註：
+                            ${item.notes || "無"}
+                        </p>
+
+                    `;
+
+                    wardrobeList.appendChild(card);
+
+                }
+            );
+
+        }
 
     </script>
 
