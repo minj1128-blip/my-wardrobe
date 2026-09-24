@@ -62,6 +62,27 @@
             margin-top: 8px;
         }
 
+        .auth-box {
+            border: 1px solid #cccccc;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .user-photo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
     </style>
 
 </head>
@@ -74,6 +95,36 @@
     <p>
         上傳你的衣服，建立自己的電子衣櫃。
     </p>
+
+    <div class="auth-box">
+
+        <button id="googleLoginButton" type="button">
+            使用 Google 帳戶登入
+        </button>
+
+        <div id="userInfo" class="user-info" hidden>
+
+            <img
+                id="userPhoto"
+                class="user-photo"
+                alt="Google 使用者頭像"
+                hidden
+            >
+
+            <div>
+                <div id="userName"></div>
+                <div id="userEmail"></div>
+            </div>
+
+            <button id="logoutButton" type="button">
+                登出
+            </button>
+
+        </div>
+
+    </div>
+
+    <div id="appArea" hidden>
 
     <h2>新增衣服</h2>
 
@@ -311,6 +362,8 @@
 
 
     <div id="wardrobeList">
+
+    </div>
 
     </div>
 
@@ -659,6 +712,164 @@
             );
 
         }
+
+    </script>
+
+
+    <script type="module">
+
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            signOut,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB5nVOspuD_4dFdAUrWIp1p3yb9TgGvF38",
+            authDomain: "my-wardrobe-af6bb.firebaseapp.com",
+            projectId: "my-wardrobe-af6bb",
+            storageBucket: "my-wardrobe-af6bb.firebasestorage.app",
+            messagingSenderId: "843220444168",
+            appId: "1:843220444168:web:17c48172a344fbbcda9dbd",
+            measurementId: "G-2Q5PXZ3B38"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+
+        const auth = getAuth(app);
+
+        const provider = new GoogleAuthProvider();
+
+
+        const googleLoginButton =
+            document.getElementById("googleLoginButton");
+
+        const logoutButton =
+            document.getElementById("logoutButton");
+
+        const userInfo =
+            document.getElementById("userInfo");
+
+        const userName =
+            document.getElementById("userName");
+
+        const userEmail =
+            document.getElementById("userEmail");
+
+        const userPhoto =
+            document.getElementById("userPhoto");
+
+        const appArea =
+            document.getElementById("appArea");
+
+
+        googleLoginButton.addEventListener(
+            "click",
+            async function () {
+
+                try {
+
+                    await signInWithPopup(
+                        auth,
+                        provider
+                    );
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "Google 登入失敗：" +
+                        error.message
+                    );
+
+                }
+
+            }
+        );
+
+
+        logoutButton.addEventListener(
+            "click",
+            async function () {
+
+                try {
+
+                    await signOut(auth);
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "登出失敗：" +
+                        error.message
+                    );
+
+                }
+
+            }
+        );
+
+
+        onAuthStateChanged(
+            auth,
+            function (user) {
+
+                if (user) {
+
+                    googleLoginButton.hidden = true;
+
+                    userInfo.hidden = false;
+
+                    appArea.hidden = false;
+
+                    userName.textContent =
+                        user.displayName || "Google 使用者";
+
+                    userEmail.textContent =
+                        user.email || "";
+
+                    if (user.photoURL) {
+
+                        userPhoto.src = user.photoURL;
+                        userPhoto.hidden = false;
+
+                    } else {
+
+                        userPhoto.hidden = true;
+
+                    }
+
+                    console.log(
+                        "目前登入者 UID：",
+                        user.uid
+                    );
+
+                } else {
+
+                    googleLoginButton.hidden = false;
+
+                    userInfo.hidden = true;
+
+                    appArea.hidden = true;
+
+                    userName.textContent = "";
+                    userEmail.textContent = "";
+                    userPhoto.hidden = true;
+
+                }
+
+            }
+        );
 
     </script>
 
