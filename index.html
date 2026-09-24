@@ -1,72 +1,106 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
-
 <head>
-
     <meta charset="UTF-8">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>敏娟的超級衣櫃系統</title>
 
     <style>
-
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 900px;
-            margin: auto;
-            padding: 30px;
+        :root {
+            --panel: rgba(255, 255, 255, 0.84);
+            --panel-strong: rgba(255, 255, 255, 0.94);
+            --line: rgba(125, 95, 100, 0.18);
+            --text: #403537;
+            --muted: #756a6d;
+            --accent: #b87688;
+            --accent-dark: #96596c;
+            --danger: #b94c57;
+            --success: #3d8065;
+            --shadow: 0 20px 60px rgba(73, 52, 57, 0.18);
         }
 
-        .form-section {
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        input,
-        select,
-        textarea,
-        button {
-            margin-top: 6px;
-            padding: 8px;
-        }
-
-        textarea {
-            width: 100%;
+        * {
             box-sizing: border-box;
         }
 
-        #wardrobeList {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, "Noto Sans TC", sans-serif;
+            color: var(--text);
+            background-image:
+                linear-gradient(rgba(255, 248, 247, 0.16), rgba(255, 248, 247, 0.16)),
+                url("wardrobe-background.jpg");
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
         }
 
-        .clothes-card {
-            width: 240px;
-            border: 1px solid #cccccc;
-            border-radius: 10px;
-            padding: 12px;
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
         }
 
-        .clothes-card img {
+        button {
+            cursor: pointer;
+        }
+
+        .page-shell {
             width: 100%;
-            height: 240px;
-            object-fit: cover;
-            border-radius: 8px;
+            min-height: 100vh;
+            padding: 32px 18px 64px;
         }
 
-        .condition-area {
-            margin-top: 8px;
+        .app-panel {
+            width: min(980px, 100%);
+            margin: 0 auto;
+            padding: 28px;
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .title-area {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .title-area h1 {
+            margin: 0 0 8px;
+            font-size: clamp(28px, 4vw, 42px);
+            letter-spacing: 0.04em;
+        }
+
+        .title-area p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .section-card {
+            margin-top: 22px;
+            padding: 22px;
+            background: var(--panel-strong);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(71, 53, 57, 0.08);
+        }
+
+        .section-card h2 {
+            margin-top: 0;
         }
 
         .auth-box {
-            border: 1px solid #cccccc;
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
         }
 
         .user-info {
@@ -83,293 +117,542 @@
             object-fit: cover;
         }
 
-    </style>
+        .user-email {
+            color: var(--muted);
+            font-size: 14px;
+        }
 
+        .status-message {
+            display: none;
+            margin: 18px 0 0;
+            padding: 12px 14px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        .status-message.loading,
+        .status-message.info {
+            background: rgba(235, 227, 244, 0.92);
+            color: #665370;
+        }
+
+        .status-message.success {
+            background: rgba(226, 244, 235, 0.94);
+            color: var(--success);
+        }
+
+        .status-message.error {
+            background: rgba(250, 228, 230, 0.96);
+            color: #a13f4b;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .form-section {
+            margin-bottom: 0;
+        }
+
+        .form-section.full {
+            grid-column: 1 / -1;
+        }
+
+        label,
+        .field-label {
+            display: inline-block;
+            margin-bottom: 7px;
+            font-weight: 700;
+        }
+
+        input[type="text"],
+        input[type="search"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d8cfd1;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text);
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid rgba(184, 118, 136, 0.22);
+            border-color: var(--accent);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .hint {
+            margin-top: 6px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .condition-area {
+            display: flex;
+            gap: 10px 14px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .condition-area label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .tag-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+            margin-top: 12px;
+        }
+
+        .tag-row input {
+            flex: 1;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #f3e7eb;
+            color: #785663;
+            font-size: 14px;
+        }
+
+        .tag button {
+            border: 0;
+            background: transparent;
+            color: #785663;
+            padding: 0;
+            line-height: 1;
+            font-size: 16px;
+        }
+
+        .color-picker-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        input[type="color"] {
+            width: 74px;
+            height: 44px;
+            padding: 3px;
+            border: 1px solid #d8cfd1;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .check-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .primary-button,
+        .secondary-button,
+        .danger-button,
+        .small-button {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 16px;
+            transition: 0.18s ease;
+        }
+
+        .primary-button {
+            background: var(--accent);
+            color: white;
+        }
+
+        .primary-button:hover {
+            background: var(--accent-dark);
+        }
+
+        .secondary-button {
+            background: #eee7e9;
+            color: #5d5154;
+        }
+
+        .danger-button {
+            background: #f4dfe2;
+            color: var(--danger);
+        }
+
+        .small-button {
+            padding: 8px 12px;
+            background: #eee7e9;
+            color: #5d5154;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .result-count {
+            margin: 0 0 14px;
+            color: var(--muted);
+        }
+
+        #wardrobeList {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .clothes-card {
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 8px 24px rgba(76, 54, 60, 0.08);
+        }
+
+        .clothes-card img {
+            display: block;
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            background: #f1eded;
+        }
+
+        .card-body {
+            padding: 14px;
+        }
+
+        .card-body h3 {
+            margin: 0 0 10px;
+        }
+
+        .card-body p {
+            margin: 7px 0;
+            line-height: 1.45;
+        }
+
+        .color-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.18);
+            flex: 0 0 auto;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 36px 18px;
+            text-align: center;
+            color: var(--muted);
+            border: 1px dashed #d4c4c9;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        @media (max-width: 820px) {
+            .filters {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            #wardrobeList {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 620px) {
+            .page-shell {
+                padding: 14px 10px 40px;
+            }
+
+            .app-panel {
+                padding: 16px;
+                border-radius: 20px;
+            }
+
+            .form-grid,
+            .filters,
+            #wardrobeList {
+                grid-template-columns: 1fr;
+            }
+
+            .section-card {
+                padding: 16px;
+            }
+
+            .clothes-card img {
+                height: 320px;
+            }
+        }
+    </style>
 </head>
 
-
 <body>
+    <div class="page-shell">
+        <main class="app-panel">
+            <header class="title-area">
+                <h1>敏娟的超級衣櫃系統</h1>
+                <p>上傳你的衣服，建立自己的雲端電子衣櫃。</p>
+            </header>
 
-    <h1>敏娟的超級衣櫃系統</h1>
+            <section class="section-card auth-box">
+                <button id="googleLoginButton" class="primary-button" type="button">
+                    使用 Google 帳戶登入
+                </button>
 
-    <p>
-        上傳你的衣服，建立自己的電子衣櫃。
-    </p>
+                <div id="userInfo" class="user-info" hidden>
+                    <img id="userPhoto" class="user-photo" alt="Google 使用者頭像" hidden>
 
-    <div class="auth-box">
+                    <div>
+                        <div id="userName"></div>
+                        <div id="userEmail" class="user-email"></div>
+                    </div>
 
-        <button id="googleLoginButton" type="button">
-            使用 Google 帳戶登入
-        </button>
+                    <button id="logoutButton" class="secondary-button" type="button">
+                        登出
+                    </button>
+                </div>
+            </section>
 
-        <div id="userInfo" class="user-info" hidden>
+            <div id="statusMessage" class="status-message" role="status" aria-live="polite"></div>
 
-            <img
-                id="userPhoto"
-                class="user-photo"
-                alt="Google 使用者頭像"
-                hidden
-            >
+            <div id="appArea" hidden>
+                <section class="section-card" id="editSection">
+                    <h2 id="formTitle">新增衣服</h2>
 
-            <div>
-                <div id="userName"></div>
-                <div id="userEmail"></div>
+                    <div class="form-grid">
+                        <div class="form-section full">
+                            <label for="photoInput">衣服照片：</label>
+                            <input id="photoInput" type="file" accept="image/*">
+                            <div id="photoHint" class="hint">新增衣服時請選擇一張照片。</div>
+                        </div>
+
+                        <div class="form-section">
+                            <label for="mainCategorySelect">衣服大類：</label>
+                            <select id="mainCategorySelect">
+                                <option value="">請選擇</option>
+                                <option value="上著">上著</option>
+                                <option value="下著">下著</option>
+                                <option value="洋裝">洋裝</option>
+                                <option value="外套">外套</option>
+                                <option value="其他">其他</option>
+                            </select>
+
+                            <input
+                                id="mainCategoryOther"
+                                class="hidden"
+                                type="text"
+                                placeholder="輸入其他大類"
+                            >
+                        </div>
+
+                        <div class="form-section">
+                            <label for="subCategorySelect">細分類：</label>
+                            <select id="subCategorySelect" disabled>
+                                <option value="">請先選擇衣服大類</option>
+                            </select>
+
+                            <input
+                                id="subCategoryOther"
+                                class="hidden"
+                                type="text"
+                                placeholder="輸入其他細分類"
+                            >
+                        </div>
+
+                        <div class="form-section">
+                            <label for="mainColorSelect">主色系：</label>
+                            <select id="mainColorSelect">
+                                <option value="">請選擇</option>
+                                <option value="黑色">黑色</option>
+                                <option value="白色">白色</option>
+                                <option value="灰色">灰色</option>
+                                <option value="米白色">米白色</option>
+                                <option value="棕色">棕色</option>
+                                <option value="紅色">紅色</option>
+                                <option value="橘色">橘色</option>
+                                <option value="黃色">黃色</option>
+                                <option value="綠色">綠色</option>
+                                <option value="藍色">藍色</option>
+                                <option value="紫色">紫色</option>
+                                <option value="粉紅色">粉紅色</option>
+                                <option value="金色">金色</option>
+                                <option value="銀色">銀色</option>
+                                <option value="其他">其他</option>
+                            </select>
+
+                            <input
+                                id="mainColorOther"
+                                class="hidden"
+                                type="text"
+                                placeholder="輸入其他主色系"
+                            >
+                        </div>
+
+                        <div class="form-section">
+                            <label for="detailColorSelect">細部顏色：</label>
+                            <select id="detailColorSelect" disabled>
+                                <option value="">請先選擇主色系</option>
+                            </select>
+
+                            <input
+                                id="detailColorOther"
+                                class="hidden"
+                                type="text"
+                                placeholder="輸入其他細部顏色"
+                            >
+                        </div>
+
+                        <div class="form-section full">
+                            <span class="field-label">實際顏色：</span>
+
+                            <div class="color-picker-row">
+                                <input id="colorPicker" type="color" value="#7d90b2">
+
+                                <label class="check-inline">
+                                    <input id="useExactColor" type="checkbox">
+                                    記錄這個實際色碼
+                                </label>
+
+                                <span id="colorHexPreview" class="hint">#7D90B2</span>
+                            </div>
+                        </div>
+
+                        <div class="form-section full">
+                            <span class="field-label">衣服狀況：</span>
+
+                            <div class="condition-area">
+                                <label><input type="checkbox" name="condition" value="泛黃"> 泛黃</label>
+                                <label><input type="checkbox" name="condition" value="污漬"> 污漬</label>
+                                <label><input type="checkbox" name="condition" value="少扣子"> 少扣子</label>
+                                <label><input type="checkbox" name="condition" value="破損"> 破損</label>
+                                <label><input type="checkbox" name="condition" value="起毛球"> 起毛球</label>
+                                <label><input type="checkbox" name="condition" value="褪色"> 褪色</label>
+                            </div>
+
+                            <div class="tag-row">
+                                <input
+                                    id="customConditionInput"
+                                    type="text"
+                                    placeholder="其他狀況，例如：拉鍊壞掉"
+                                >
+                                <button id="addConditionTagButton" class="secondary-button" type="button">
+                                    加入標籤
+                                </button>
+                            </div>
+
+                            <div id="customConditionTags" class="tag-list"></div>
+                        </div>
+
+                        <div class="form-section full">
+                            <label for="notesInput">備註：</label>
+                            <textarea
+                                id="notesInput"
+                                rows="4"
+                                placeholder="例如：右袖口明顯泛黃，第二顆扣子遺失"
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-row">
+                        <button id="addButton" class="primary-button" type="button">
+                            加入衣櫃
+                        </button>
+
+                        <button id="cancelEditButton" class="secondary-button" type="button" hidden>
+                            取消修改
+                        </button>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <h2>我的衣櫃</h2>
+
+                    <div class="filters">
+                        <input
+                            id="searchInput"
+                            type="search"
+                            placeholder="搜尋分類、顏色、衣況或備註"
+                        >
+
+                        <select id="filterMainCategory">
+                            <option value="">全部大類</option>
+                        </select>
+
+                        <select id="filterColor">
+                            <option value="">全部顏色</option>
+                        </select>
+
+                        <select id="filterCondition">
+                            <option value="">全部衣況</option>
+                        </select>
+                    </div>
+
+                    <p id="resultCount" class="result-count"></p>
+
+                    <div id="wardrobeList"></div>
+                </section>
             </div>
-
-            <button id="logoutButton" type="button">
-                登出
-            </button>
-
-        </div>
-
+        </main>
     </div>
-
-    <div id="appArea" hidden>
-
-    <h2>新增衣服</h2>
-
-
-    <div class="form-section">
-
-        <label for="photoInput">
-            衣服照片：
-        </label>
-
-        <br>
-
-        <input
-            id="photoInput"
-            type="file"
-            accept="image/*"
-        >
-
-    </div>
-
-
-    <div class="form-section">
-
-        <label for="mainCategoryInput">
-            衣服大類：
-        </label>
-
-        <br>
-
-        <input
-            id="mainCategoryInput"
-            type="text"
-            list="mainCategorySuggestions"
-            placeholder="選擇或自己輸入，例如：上著"
-        >
-
-        <datalist id="mainCategorySuggestions">
-
-            <option value="上著">
-
-            <option value="下著">
-
-            <option value="洋裝">
-
-            <option value="外套">
-
-        </datalist>
-
-    </div>
-
-
-    <div class="form-section">
-
-        <label for="subCategoryInput">
-            細分類：
-        </label>
-
-        <br>
-
-        <input
-            id="subCategoryInput"
-            type="text"
-            list="subCategorySuggestions"
-            placeholder="例如：襯衫"
-        >
-
-        <datalist id="subCategorySuggestions">
-
-        </datalist>
-
-    </div>
-
-
-    <div class="form-section">
-
-        <label for="colorInput">
-            顏色名稱：
-        </label>
-
-        <br>
-
-        <input
-            id="colorInput"
-            type="text"
-            list="colorSuggestions"
-            placeholder="輸入或選擇顏色"
-        >
-
-        <datalist id="colorSuggestions">
-
-            <option value="黑色">
-
-            <option value="白色">
-
-            <option value="灰色">
-
-            <option value="米白色">
-
-            <option value="棕色">
-
-            <option value="紅色">
-
-            <option value="藍色">
-
-            <option value="綠色">
-
-            <option value="黃色">
-
-            <option value="紫色">
-
-            <option value="粉紅色">
-
-            <option value="卡其色">
-
-        </datalist>
-
-    </div>
-
-
-    <div class="form-section">
-
-        <label for="colorPicker">
-            實際顏色（可不選）：
-        </label>
-
-        <br>
-
-        <input
-            id="colorPicker"
-            type="color"
-        >
-
-        <input
-            id="colorHexInput"
-            type="hidden"
-            value=""
-        >
-
-    </div>
-
-
-    <div class="form-section">
-
-        <label>
-            衣服狀況：
-        </label>
-
-        <div class="condition-area">
-
-            <label>
-                <input
-                    type="checkbox"
-                    name="condition"
-                    value="泛黃"
-                >
-                泛黃
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    name="condition"
-                    value="污漬"
-                >
-                污漬
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    name="condition"
-                    value="少扣子"
-                >
-                少扣子
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    name="condition"
-                    value="破損"
-                >
-                破損
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    name="condition"
-                    value="起毛球"
-                >
-                起毛球
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    name="condition"
-                    value="褪色"
-                >
-                褪色
-            </label>
-
-        </div>
-
-    </div>
-
-
-    <div class="form-section">
-
-        <label for="notesInput">
-            備註：
-        </label>
-
-        <br>
-
-        <textarea
-            id="notesInput"
-            rows="5"
-            placeholder="例如：右袖口明顯泛黃，第二顆扣子遺失"
-        ></textarea>
-
-    </div>
-
-
-    <button id="addButton">
-        加入衣櫃
-    </button>
-
-
-    <hr>
-
-
-    <h2>我的衣櫃</h2>
-
-
-    <div id="wardrobeList">
-
-    </div>
-
-    </div>
-
 
     <script type="module">
-
         import {
             initializeApp
         } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
@@ -389,9 +672,11 @@
             query,
             orderBy,
             onSnapshot,
-            serverTimestamp
+            serverTimestamp,
+            doc,
+            updateDoc,
+            deleteDoc
         } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-
 
         const firebaseConfig = {
             apiKey: "AIzaSyB5nVOspuD_4dFdAUrWIp1p3yb9TgGvF38",
@@ -403,675 +688,954 @@
             measurementId: "G-2Q5PXZ3B38"
         };
 
-
         const app = initializeApp(firebaseConfig);
-
         const auth = getAuth(app);
-
         const db = getFirestore(app);
-
         const provider = new GoogleAuthProvider();
 
+        const fixedConditions = [
+            "泛黃",
+            "污漬",
+            "少扣子",
+            "破損",
+            "起毛球",
+            "褪色"
+        ];
 
         const subCategoryMap = {
-
-            "上著": [
-                "T恤",
-                "襯衫",
-                "背心",
-                "針織衫",
-                "帽T"
-            ],
-
-            "下著": [
-                "長褲",
-                "短褲",
-                "牛仔褲",
-                "長裙",
-                "短裙"
-            ],
-
-            "洋裝": [
-                "連身裙",
-                "襯衫洋裝",
-                "吊帶洋裝",
-                "針織洋裝"
-            ],
-
-            "外套": [
-                "西裝外套",
-                "針織外套",
-                "風衣",
-                "大衣",
-                "夾克"
-            ]
-
+            "上著": ["T恤", "襯衫", "背心", "針織衫", "帽T"],
+            "下著": ["長褲", "短褲", "牛仔褲", "長裙", "短裙"],
+            "洋裝": ["連身裙", "襯衫洋裝", "吊帶洋裝", "針織洋裝"],
+            "外套": ["西裝外套", "針織外套", "風衣", "大衣", "夾克"]
         };
 
+        const detailColorMap = {
+            "黑色": ["純黑", "炭黑", "墨黑"],
+            "白色": ["純白", "象牙白", "乳白"],
+            "灰色": ["淺灰", "中灰", "深灰", "炭灰"],
+            "米白色": ["奶油白", "燕麥色", "杏色"],
+            "棕色": ["咖啡色", "焦糖棕", "巧克力棕", "駝色"],
+            "紅色": ["酒紅", "磚紅", "正紅", "莓果紅"],
+            "橘色": ["橘紅", "南瓜橘", "珊瑚橘"],
+            "黃色": ["奶油黃", "芥末黃", "鵝黃"],
+            "綠色": ["墨綠", "橄欖綠", "鼠尾草綠", "薄荷綠"],
+            "藍色": ["海軍藍", "寶藍", "天空藍", "霧藍", "牛仔藍"],
+            "紫色": ["薰衣草紫", "葡萄紫", "藕紫"],
+            "粉紅色": ["裸粉", "櫻花粉", "玫瑰粉", "蜜桃粉"],
+            "金色": ["香檳金", "亮金", "古銅金"],
+            "銀色": ["亮銀", "霧銀", "槍灰銀"]
+        };
 
-        const mainCategoryInput =
-            document.getElementById("mainCategoryInput");
+        const googleLoginButton = document.getElementById("googleLoginButton");
+        const logoutButton = document.getElementById("logoutButton");
+        const userInfo = document.getElementById("userInfo");
+        const userName = document.getElementById("userName");
+        const userEmail = document.getElementById("userEmail");
+        const userPhoto = document.getElementById("userPhoto");
+        const appArea = document.getElementById("appArea");
+        const statusMessage = document.getElementById("statusMessage");
 
-        const subCategoryInput =
-            document.getElementById("subCategoryInput");
+        const photoInput = document.getElementById("photoInput");
+        const photoHint = document.getElementById("photoHint");
+        const formTitle = document.getElementById("formTitle");
+        const editSection = document.getElementById("editSection");
 
-        const subCategorySuggestions =
-            document.getElementById("subCategorySuggestions");
+        const mainCategorySelect = document.getElementById("mainCategorySelect");
+        const mainCategoryOther = document.getElementById("mainCategoryOther");
+        const subCategorySelect = document.getElementById("subCategorySelect");
+        const subCategoryOther = document.getElementById("subCategoryOther");
 
-        const colorPicker =
-            document.getElementById("colorPicker");
+        const mainColorSelect = document.getElementById("mainColorSelect");
+        const mainColorOther = document.getElementById("mainColorOther");
+        const detailColorSelect = document.getElementById("detailColorSelect");
+        const detailColorOther = document.getElementById("detailColorOther");
+        const colorPicker = document.getElementById("colorPicker");
+        const useExactColor = document.getElementById("useExactColor");
+        const colorHexPreview = document.getElementById("colorHexPreview");
 
-        const colorHexInput =
-            document.getElementById("colorHexInput");
+        const customConditionInput = document.getElementById("customConditionInput");
+        const addConditionTagButton = document.getElementById("addConditionTagButton");
+        const customConditionTags = document.getElementById("customConditionTags");
+        const notesInput = document.getElementById("notesInput");
 
-        const addButton =
-            document.getElementById("addButton");
+        const addButton = document.getElementById("addButton");
+        const cancelEditButton = document.getElementById("cancelEditButton");
 
-        const wardrobeList =
-            document.getElementById("wardrobeList");
-
-        const googleLoginButton =
-            document.getElementById("googleLoginButton");
-
-        const logoutButton =
-            document.getElementById("logoutButton");
-
-        const userInfo =
-            document.getElementById("userInfo");
-
-        const userName =
-            document.getElementById("userName");
-
-        const userEmail =
-            document.getElementById("userEmail");
-
-        const userPhoto =
-            document.getElementById("userPhoto");
-
-        const appArea =
-            document.getElementById("appArea");
-
+        const searchInput = document.getElementById("searchInput");
+        const filterMainCategory = document.getElementById("filterMainCategory");
+        const filterColor = document.getElementById("filterColor");
+        const filterCondition = document.getElementById("filterCondition");
+        const resultCount = document.getElementById("resultCount");
+        const wardrobeList = document.getElementById("wardrobeList");
 
         let currentUser = null;
-
         let clothes = [];
-
         let unsubscribeClothes = null;
+        let customConditionValues = [];
+        let editingId = null;
+        let editingOriginalImage = "";
+        let statusTimer = null;
 
+        function showStatus(message, type = "info", autoHide = false) {
+            if (statusTimer) {
+                clearTimeout(statusTimer);
+                statusTimer = null;
+            }
 
-        mainCategoryInput.addEventListener(
-            "input",
-            updateSubCategorySuggestions
-        );
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message show ${type}`;
 
-
-        function updateSubCategorySuggestions() {
-
-            const mainCategory =
-                mainCategoryInput.value;
-
-            subCategorySuggestions.innerHTML = "";
-
-            const suggestions =
-                subCategoryMap[mainCategory] || [];
-
-            suggestions.forEach(
-                function (suggestion) {
-
-                    const option =
-                        document.createElement("option");
-
-                    option.value = suggestion;
-
-                    subCategorySuggestions.appendChild(option);
-
-                }
-            );
-
+            if (autoHide) {
+                statusTimer = setTimeout(function () {
+                    statusMessage.className = "status-message";
+                    statusMessage.textContent = "";
+                }, 3500);
+            }
         }
 
-
-        colorPicker.addEventListener(
-            "input",
-            function () {
-
-                colorHexInput.value =
-                    colorPicker.value;
-
+        function clearStatus() {
+            if (statusTimer) {
+                clearTimeout(statusTimer);
+                statusTimer = null;
             }
-        );
 
+            statusMessage.className = "status-message";
+            statusMessage.textContent = "";
+        }
 
-        googleLoginButton.addEventListener(
-            "click",
-            async function () {
-
-                try {
-
-                    await signInWithPopup(
-                        auth,
-                        provider
-                    );
-
-                } catch (error) {
-
-                    console.error(error);
-
-                    alert(
-                        "Google 登入失敗：" +
-                        error.message
-                    );
-
-                }
-
+        function getMainCategoryValue() {
+            if (mainCategorySelect.value === "其他") {
+                return mainCategoryOther.value.trim();
             }
-        );
 
+            return mainCategorySelect.value;
+        }
 
-        logoutButton.addEventListener(
-            "click",
-            async function () {
-
-                try {
-
-                    await signOut(auth);
-
-                } catch (error) {
-
-                    console.error(error);
-
-                    alert(
-                        "登出失敗：" +
-                        error.message
-                    );
-
-                }
-
+        function getSubCategoryValue() {
+            if (subCategorySelect.value === "其他") {
+                return subCategoryOther.value.trim();
             }
-        );
 
+            return subCategorySelect.value;
+        }
 
-        onAuthStateChanged(
-            auth,
-            function (user) {
+        function getMainColorValue() {
+            if (mainColorSelect.value === "其他") {
+                return mainColorOther.value.trim();
+            }
 
-                if (unsubscribeClothes) {
+            return mainColorSelect.value;
+        }
 
-                    unsubscribeClothes();
-                    unsubscribeClothes = null;
+        function getDetailColorValue() {
+            if (detailColorSelect.value === "其他") {
+                return detailColorOther.value.trim();
+            }
 
-                }
+            return detailColorSelect.value;
+        }
 
+        function updateMainCategoryOther() {
+            const isOther = mainCategorySelect.value === "其他";
+            mainCategoryOther.classList.toggle("hidden", !isOther);
 
-                currentUser = user;
+            if (!isOther) {
+                mainCategoryOther.value = "";
+            }
 
+            updateSubCategoryOptions();
+        }
 
-                if (user) {
+        function updateSubCategoryOptions(selectedValue = "") {
+            const mainCategory = getMainCategoryValue();
 
-                    googleLoginButton.hidden = true;
+            subCategorySelect.innerHTML = "";
+            subCategoryOther.classList.add("hidden");
+            subCategoryOther.value = "";
 
-                    userInfo.hidden = false;
+            if (!mainCategory) {
+                subCategorySelect.disabled = true;
+                subCategorySelect.innerHTML = '<option value="">請先選擇衣服大類</option>';
+                return;
+            }
 
-                    appArea.hidden = false;
+            subCategorySelect.disabled = false;
 
-                    userName.textContent =
-                        user.displayName || "Google 使用者";
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "請選擇細分類";
+            subCategorySelect.appendChild(placeholder);
 
-                    userEmail.textContent =
-                        user.email || "";
+            const suggestions = subCategoryMap[mainCategory] || [];
 
-                    if (user.photoURL) {
+            suggestions.forEach(function (suggestion) {
+                const option = document.createElement("option");
+                option.value = suggestion;
+                option.textContent = suggestion;
+                subCategorySelect.appendChild(option);
+            });
 
-                        userPhoto.src = user.photoURL;
-                        userPhoto.hidden = false;
+            const otherOption = document.createElement("option");
+            otherOption.value = "其他";
+            otherOption.textContent = "其他";
+            subCategorySelect.appendChild(otherOption);
 
-                    } else {
-
-                        userPhoto.hidden = true;
-
-                    }
-
-                    subscribeToWardrobe(user.uid);
-
+            if (selectedValue) {
+                if (suggestions.includes(selectedValue)) {
+                    subCategorySelect.value = selectedValue;
                 } else {
+                    subCategorySelect.value = "其他";
+                    subCategoryOther.classList.remove("hidden");
+                    subCategoryOther.value = selectedValue;
+                }
+            }
+        }
 
-                    googleLoginButton.hidden = false;
+        function updateSubCategoryOther() {
+            const isOther = subCategorySelect.value === "其他";
+            subCategoryOther.classList.toggle("hidden", !isOther);
 
-                    userInfo.hidden = true;
+            if (!isOther) {
+                subCategoryOther.value = "";
+            }
+        }
 
-                    appArea.hidden = true;
+        function updateMainColorOther() {
+            const isOther = mainColorSelect.value === "其他";
+            mainColorOther.classList.toggle("hidden", !isOther);
 
-                    userName.textContent = "";
-                    userEmail.textContent = "";
+            if (!isOther) {
+                mainColorOther.value = "";
+            }
+
+            updateDetailColorOptions();
+        }
+
+        function updateDetailColorOptions(selectedValue = "") {
+            const mainColor = getMainColorValue();
+
+            detailColorSelect.innerHTML = "";
+            detailColorOther.classList.add("hidden");
+            detailColorOther.value = "";
+
+            if (!mainColor) {
+                detailColorSelect.disabled = true;
+                detailColorSelect.innerHTML = '<option value="">請先選擇主色系</option>';
+                return;
+            }
+
+            detailColorSelect.disabled = false;
+
+            const noneOption = document.createElement("option");
+            noneOption.value = "";
+            noneOption.textContent = "未指定細部顏色";
+            detailColorSelect.appendChild(noneOption);
+
+            const suggestions = detailColorMap[mainColor] || [];
+
+            suggestions.forEach(function (suggestion) {
+                const option = document.createElement("option");
+                option.value = suggestion;
+                option.textContent = suggestion;
+                detailColorSelect.appendChild(option);
+            });
+
+            const otherOption = document.createElement("option");
+            otherOption.value = "其他";
+            otherOption.textContent = "其他";
+            detailColorSelect.appendChild(otherOption);
+
+            if (selectedValue) {
+                if (suggestions.includes(selectedValue)) {
+                    detailColorSelect.value = selectedValue;
+                } else {
+                    detailColorSelect.value = "其他";
+                    detailColorOther.classList.remove("hidden");
+                    detailColorOther.value = selectedValue;
+                }
+            }
+        }
+
+        function updateDetailColorOther() {
+            const isOther = detailColorSelect.value === "其他";
+            detailColorOther.classList.toggle("hidden", !isOther);
+
+            if (!isOther) {
+                detailColorOther.value = "";
+            }
+        }
+
+        function addCustomConditionTag() {
+            const value = customConditionInput.value.trim();
+
+            if (!value) {
+                return;
+            }
+
+            if (!customConditionValues.includes(value)) {
+                customConditionValues.push(value);
+                renderCustomConditionTags();
+            }
+
+            customConditionInput.value = "";
+        }
+
+        function renderCustomConditionTags() {
+            customConditionTags.innerHTML = "";
+
+            customConditionValues.forEach(function (value, index) {
+                const tag = document.createElement("span");
+                tag.className = "tag";
+
+                const text = document.createElement("span");
+                text.textContent = value;
+
+                const removeButton = document.createElement("button");
+                removeButton.type = "button";
+                removeButton.setAttribute("aria-label", `移除 ${value}`);
+                removeButton.textContent = "×";
+                removeButton.addEventListener("click", function () {
+                    customConditionValues.splice(index, 1);
+                    renderCustomConditionTags();
+                });
+
+                tag.appendChild(text);
+                tag.appendChild(removeButton);
+                customConditionTags.appendChild(tag);
+            });
+        }
+
+        function getAllConditions() {
+            const checked = Array.from(
+                document.querySelectorAll('input[name="condition"]:checked')
+            ).map(function (checkbox) {
+                return checkbox.value;
+            });
+
+            return [...new Set([...checked, ...customConditionValues])];
+        }
+
+        mainCategorySelect.addEventListener("change", updateMainCategoryOther);
+        mainCategoryOther.addEventListener("input", function () {
+            updateSubCategoryOptions();
+        });
+        subCategorySelect.addEventListener("change", updateSubCategoryOther);
+
+        mainColorSelect.addEventListener("change", updateMainColorOther);
+        mainColorOther.addEventListener("input", function () {
+            updateDetailColorOptions();
+        });
+        detailColorSelect.addEventListener("change", updateDetailColorOther);
+
+        colorPicker.addEventListener("input", function () {
+            colorHexPreview.textContent = colorPicker.value.toUpperCase();
+            useExactColor.checked = true;
+        });
+
+        addConditionTagButton.addEventListener("click", addCustomConditionTag);
+
+        customConditionInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addCustomConditionTag();
+            }
+        });
+
+        googleLoginButton.addEventListener("click", async function () {
+            showStatus("正在開啟 Google 登入…", "loading");
+
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error(error);
+                showStatus("Google 登入失敗：" + error.message, "error");
+            }
+        });
+
+        logoutButton.addEventListener("click", async function () {
+            showStatus("正在登出…", "loading");
+
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error(error);
+                showStatus("登出失敗：" + error.message, "error");
+            }
+        });
+
+        onAuthStateChanged(auth, function (user) {
+            if (unsubscribeClothes) {
+                unsubscribeClothes();
+                unsubscribeClothes = null;
+            }
+
+            currentUser = user;
+
+            if (user) {
+                googleLoginButton.hidden = true;
+                userInfo.hidden = false;
+                appArea.hidden = false;
+
+                userName.textContent = user.displayName || "Google 使用者";
+                userEmail.textContent = user.email || "";
+
+                if (user.photoURL) {
+                    userPhoto.src = user.photoURL;
+                    userPhoto.hidden = false;
+                } else {
                     userPhoto.hidden = true;
-
-                    clothes = [];
-                    renderWardrobe();
-
                 }
 
-            }
-        );
+                showStatus("正在讀取雲端衣櫃…", "loading");
+                subscribeToWardrobe(user.uid);
+            } else {
+                googleLoginButton.hidden = false;
+                userInfo.hidden = true;
+                appArea.hidden = true;
 
+                userName.textContent = "";
+                userEmail.textContent = "";
+                userPhoto.hidden = true;
+
+                clothes = [];
+                renderWardrobe();
+                clearForm();
+                showStatus("請先登入，登入後會載入你的雲端衣櫃。", "info");
+            }
+        });
 
         function subscribeToWardrobe(uid) {
+            const clothesCollection = collection(db, "users", uid, "clothes");
+            const clothesQuery = query(clothesCollection, orderBy("createdAt", "desc"));
 
-            const clothesCollection =
-                collection(
+            unsubscribeClothes = onSnapshot(
+                clothesQuery,
+                function (snapshot) {
+                    clothes = snapshot.docs.map(function (documentSnapshot) {
+                        return {
+                            id: documentSnapshot.id,
+                            ...documentSnapshot.data()
+                        };
+                    });
+
+                    populateFilterOptions();
+                    renderWardrobe();
+                    showStatus(`已載入 ${clothes.length} 件衣服。`, "success", true);
+                },
+                function (error) {
+                    console.error(error);
+                    showStatus("讀取雲端衣櫃失敗：" + error.message, "error");
+                }
+            );
+        }
+
+        addButton.addEventListener("click", saveClothes);
+        cancelEditButton.addEventListener("click", clearForm);
+
+        async function saveClothes() {
+            if (!currentUser) {
+                showStatus("請先使用 Google 帳戶登入。", "error");
+                return;
+            }
+
+            const mainCategory = getMainCategoryValue();
+            const subCategory = getSubCategoryValue();
+            const mainColor = getMainColorValue();
+            const detailColor = getDetailColorValue();
+            const colorHex = useExactColor.checked ? colorPicker.value : "";
+            const conditions = getAllConditions();
+            const notes = notesInput.value.trim();
+            const newPhotoFile = photoInput.files[0];
+
+            if (!mainCategory || !subCategory) {
+                showStatus("請填寫衣服大類與細分類。", "error");
+                return;
+            }
+
+            if (!editingId && !newPhotoFile) {
+                showStatus("新增衣服時請先選擇一張照片。", "error");
+                return;
+            }
+
+            if (!mainColor) {
+                showStatus("請至少選擇一個主色系。", "error");
+                return;
+            }
+
+            addButton.disabled = true;
+            cancelEditButton.disabled = true;
+            addButton.textContent = editingId ? "修改中…" : "儲存中…";
+            showStatus(editingId ? "正在修改衣服資料…" : "正在儲存衣服…", "loading");
+
+            try {
+                let imageData = editingOriginalImage;
+
+                if (newPhotoFile) {
+                    showStatus("正在處理照片…", "loading");
+                    imageData = await compressImage(newPhotoFile);
+                }
+
+                const payload = {
+                    image: imageData,
+                    mainCategory: mainCategory,
+                    subCategory: subCategory,
+                    mainColor: mainColor,
+                    detailColor: detailColor,
+                    colorName: mainColor,
+                    colorHex: colorHex,
+                    conditions: conditions,
+                    notes: notes,
+                    updatedAt: serverTimestamp()
+                };
+
+                if (editingId) {
+                    const clothesDocument = doc(
+                        db,
+                        "users",
+                        currentUser.uid,
+                        "clothes",
+                        editingId
+                    );
+
+                    await updateDoc(clothesDocument, payload);
+                    showStatus("衣服資料已修改。", "success", true);
+                } else {
+                    const clothesCollection = collection(
+                        db,
+                        "users",
+                        currentUser.uid,
+                        "clothes"
+                    );
+
+                    await addDoc(clothesCollection, {
+                        ...payload,
+                        createdAt: serverTimestamp()
+                    });
+
+                    showStatus("衣服已加入衣櫃。", "success", true);
+                }
+
+                clearForm();
+            } catch (error) {
+                console.error(error);
+                showStatus(
+                    (editingId ? "修改衣服失敗：" : "儲存衣服失敗：") + error.message,
+                    "error"
+                );
+            } finally {
+                addButton.disabled = false;
+                cancelEditButton.disabled = false;
+                addButton.textContent = editingId ? "儲存修改" : "加入衣櫃";
+            }
+        }
+
+        function startEdit(item) {
+            editingId = item.id;
+            editingOriginalImage = item.image || "";
+
+            formTitle.textContent = "修改衣服";
+            addButton.textContent = "儲存修改";
+            cancelEditButton.hidden = false;
+            photoHint.textContent = "若不想更換照片，可以不選新照片。";
+
+            setCategoryFields(item.mainCategory || "", item.subCategory || "");
+
+            const oldMainColor = item.mainColor || item.colorName || "";
+            const oldDetailColor = item.detailColor || "";
+            setColorFields(oldMainColor, oldDetailColor);
+
+            if (item.colorHex) {
+                colorPicker.value = item.colorHex;
+                colorHexPreview.textContent = item.colorHex.toUpperCase();
+                useExactColor.checked = true;
+            } else {
+                colorPicker.value = "#7d90b2";
+                colorHexPreview.textContent = "#7D90B2";
+                useExactColor.checked = false;
+            }
+
+            document.querySelectorAll('input[name="condition"]').forEach(function (checkbox) {
+                checkbox.checked = (item.conditions || []).includes(checkbox.value);
+            });
+
+            customConditionValues = (item.conditions || []).filter(function (condition) {
+                return !fixedConditions.includes(condition);
+            });
+            renderCustomConditionTags();
+
+            notesInput.value = item.notes || "";
+            photoInput.value = "";
+
+            editSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            showStatus("已載入這件衣服，可直接修改後儲存。", "info", true);
+        }
+
+        async function removeClothes(item) {
+            if (!currentUser) {
+                showStatus("請先登入。", "error");
+                return;
+            }
+
+            const confirmed = confirm(
+                `確定要刪除「${item.mainCategory || "這件衣服"}／${item.subCategory || ""}」嗎？\n刪除後無法從網站直接復原。`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            showStatus("正在刪除衣服…", "loading");
+
+            try {
+                const clothesDocument = doc(
                     db,
                     "users",
-                    uid,
-                    "clothes"
+                    currentUser.uid,
+                    "clothes",
+                    item.id
                 );
 
-            const clothesQuery =
-                query(
-                    clothesCollection,
-                    orderBy("createdAt", "desc")
-                );
+                await deleteDoc(clothesDocument);
 
-            unsubscribeClothes =
-                onSnapshot(
-                    clothesQuery,
-                    function (snapshot) {
-
-                        clothes = snapshot.docs.map(
-                            function (documentSnapshot) {
-
-                                return {
-                                    id: documentSnapshot.id,
-                                    ...documentSnapshot.data()
-                                };
-
-                            }
-                        );
-
-                        renderWardrobe();
-
-                    },
-                    function (error) {
-
-                        console.error(error);
-
-                        alert(
-                            "讀取雲端衣櫃失敗：" +
-                            error.message
-                        );
-
-                    }
-                );
-
-        }
-
-
-        addButton.addEventListener(
-            "click",
-            async function () {
-
-                if (!currentUser) {
-
-                    alert("請先使用 Google 帳戶登入。");
-                    return;
-
+                if (editingId === item.id) {
+                    clearForm();
                 }
 
-
-                const photoInput =
-                    document.getElementById("photoInput");
-
-                const photoFile =
-                    photoInput.files[0];
-
-                if (!photoFile) {
-
-                    alert("請先選擇一張衣服照片。");
-                    return;
-
-                }
-
-
-                const mainCategory =
-                    mainCategoryInput.value.trim();
-
-                const subCategory =
-                    subCategoryInput.value.trim();
-
-                if (!mainCategory || !subCategory) {
-
-                    alert("請填寫衣服大類與細分類。");
-                    return;
-
-                }
-
-
-                const colorName =
-                    document
-                        .getElementById("colorInput")
-                        .value
-                        .trim();
-
-                const colorHex =
-                    colorHexInput.value;
-
-                const checkedConditions =
-                    document.querySelectorAll(
-                        'input[name="condition"]:checked'
-                    );
-
-                const conditions = [];
-
-                checkedConditions.forEach(
-                    function (checkbox) {
-
-                        conditions.push(
-                            checkbox.value
-                        );
-
-                    }
-                );
-
-                const notes =
-                    document
-                        .getElementById("notesInput")
-                        .value
-                        .trim();
-
-
-                addButton.disabled = true;
-                addButton.textContent = "儲存中...";
-
-
-                try {
-
-                    const compressedImage =
-                        await compressImage(photoFile);
-
-                    const clothesCollection =
-                        collection(
-                            db,
-                            "users",
-                            currentUser.uid,
-                            "clothes"
-                        );
-
-                    await addDoc(
-                        clothesCollection,
-                        {
-                            image: compressedImage,
-                            mainCategory: mainCategory,
-                            subCategory: subCategory,
-                            colorName: colorName,
-                            colorHex: colorHex,
-                            conditions: conditions,
-                            notes: notes,
-                            createdAt: serverTimestamp()
-                        }
-                    );
-
-                    clearForm(checkedConditions);
-
-                } catch (error) {
-
-                    console.error(error);
-
-                    alert(
-                        "儲存衣服失敗：" +
-                        error.message
-                    );
-
-                } finally {
-
-                    addButton.disabled = false;
-                    addButton.textContent = "加入衣櫃";
-
-                }
-
+                showStatus("衣服已刪除。", "success", true);
+            } catch (error) {
+                console.error(error);
+                showStatus("刪除衣服失敗：" + error.message, "error");
             }
-        );
-
-
-        function clearForm(checkedConditions) {
-
-            document.getElementById("photoInput").value = "";
-
-            mainCategoryInput.value = "";
-
-            subCategoryInput.value = "";
-
-            document
-                .getElementById("colorInput")
-                .value = "";
-
-            colorHexInput.value = "";
-
-            document
-                .getElementById("notesInput")
-                .value = "";
-
-            checkedConditions.forEach(
-                function (checkbox) {
-
-                    checkbox.checked = false;
-
-                }
-            );
-
-            subCategorySuggestions.innerHTML = "";
-
         }
 
+        function setCategoryFields(mainCategory, subCategory) {
+            const fixedMainCategories = ["上著", "下著", "洋裝", "外套"];
 
-        function compressImage(file) {
+            if (fixedMainCategories.includes(mainCategory)) {
+                mainCategorySelect.value = mainCategory;
+                mainCategoryOther.classList.add("hidden");
+                mainCategoryOther.value = "";
+            } else if (mainCategory) {
+                mainCategorySelect.value = "其他";
+                mainCategoryOther.classList.remove("hidden");
+                mainCategoryOther.value = mainCategory;
+            } else {
+                mainCategorySelect.value = "";
+                mainCategoryOther.classList.add("hidden");
+                mainCategoryOther.value = "";
+            }
 
-            return new Promise(
-                function (resolve, reject) {
-
-                    const reader = new FileReader();
-
-                    reader.onload =
-                        function (event) {
-
-                            const image = new Image();
-
-                            image.onload =
-                                function () {
-
-                                    const maxDimension = 700;
-
-                                    let width = image.width;
-                                    let height = image.height;
-
-                                    const largestSide =
-                                        Math.max(width, height);
-
-                                    if (largestSide > maxDimension) {
-
-                                        const scale =
-                                            maxDimension / largestSide;
-
-                                        width =
-                                            Math.round(width * scale);
-
-                                        height =
-                                            Math.round(height * scale);
-
-                                    }
-
-                                    const canvas =
-                                        document.createElement("canvas");
-
-                                    canvas.width = width;
-                                    canvas.height = height;
-
-                                    const context =
-                                        canvas.getContext("2d");
-
-                                    context.fillStyle = "#ffffff";
-                                    context.fillRect(
-                                        0,
-                                        0,
-                                        width,
-                                        height
-                                    );
-
-                                    context.drawImage(
-                                        image,
-                                        0,
-                                        0,
-                                        width,
-                                        height
-                                    );
-
-                                    let quality = 0.75;
-
-                                    let dataUrl =
-                                        canvas.toDataURL(
-                                            "image/jpeg",
-                                            quality
-                                        );
-
-                                    while (
-                                        new Blob([dataUrl]).size > 650000 &&
-                                        quality > 0.35
-                                    ) {
-
-                                        quality -= 0.1;
-
-                                        dataUrl =
-                                            canvas.toDataURL(
-                                                "image/jpeg",
-                                                quality
-                                            );
-
-                                    }
-
-                                    if (
-                                        new Blob([dataUrl]).size > 800000
-                                    ) {
-
-                                        reject(
-                                            new Error(
-                                                "照片壓縮後仍然太大，請改用較小的照片。"
-                                            )
-                                        );
-
-                                        return;
-
-                                    }
-
-                                    resolve(dataUrl);
-
-                                };
-
-                            image.onerror =
-                                function () {
-
-                                    reject(
-                                        new Error(
-                                            "無法讀取這張圖片。"
-                                        )
-                                    );
-
-                                };
-
-                            image.src = event.target.result;
-
-                        };
-
-                    reader.onerror =
-                        function () {
-
-                            reject(
-                                new Error(
-                                    "無法讀取圖片檔案。"
-                                )
-                            );
-
-                        };
-
-                    reader.readAsDataURL(file);
-
-                }
-            );
-
+            updateSubCategoryOptions(subCategory);
         }
 
+        function setColorFields(mainColor, detailColor) {
+            const fixedMainColors = [
+                "黑色", "白色", "灰色", "米白色", "棕色", "紅色", "橘色",
+                "黃色", "綠色", "藍色", "紫色", "粉紅色", "金色", "銀色"
+            ];
+
+            if (fixedMainColors.includes(mainColor)) {
+                mainColorSelect.value = mainColor;
+                mainColorOther.classList.add("hidden");
+                mainColorOther.value = "";
+            } else if (mainColor) {
+                mainColorSelect.value = "其他";
+                mainColorOther.classList.remove("hidden");
+                mainColorOther.value = mainColor;
+            } else {
+                mainColorSelect.value = "";
+                mainColorOther.classList.add("hidden");
+                mainColorOther.value = "";
+            }
+
+            updateDetailColorOptions(detailColor);
+        }
+
+        function clearForm() {
+            editingId = null;
+            editingOriginalImage = "";
+
+            formTitle.textContent = "新增衣服";
+            addButton.textContent = "加入衣櫃";
+            cancelEditButton.hidden = true;
+            photoHint.textContent = "新增衣服時請選擇一張照片。";
+
+            photoInput.value = "";
+
+            mainCategorySelect.value = "";
+            mainCategoryOther.value = "";
+            mainCategoryOther.classList.add("hidden");
+            updateSubCategoryOptions();
+
+            mainColorSelect.value = "";
+            mainColorOther.value = "";
+            mainColorOther.classList.add("hidden");
+            updateDetailColorOptions();
+
+            colorPicker.value = "#7d90b2";
+            colorHexPreview.textContent = "#7D90B2";
+            useExactColor.checked = false;
+
+            document.querySelectorAll('input[name="condition"]').forEach(function (checkbox) {
+                checkbox.checked = false;
+            });
+
+            customConditionValues = [];
+            customConditionInput.value = "";
+            renderCustomConditionTags();
+
+            notesInput.value = "";
+        }
+
+        searchInput.addEventListener("input", renderWardrobe);
+        filterMainCategory.addEventListener("change", renderWardrobe);
+        filterColor.addEventListener("change", renderWardrobe);
+        filterCondition.addEventListener("change", renderWardrobe);
+
+        function populateFilterOptions() {
+            const previousMainCategory = filterMainCategory.value;
+            const previousColor = filterColor.value;
+            const previousCondition = filterCondition.value;
+
+            const categories = uniqueSorted(
+                clothes.map(function (item) {
+                    return item.mainCategory || "";
+                })
+            );
+
+            const colors = uniqueSorted(
+                clothes.map(function (item) {
+                    return item.mainColor || item.colorName || "";
+                })
+            );
+
+            const conditions = uniqueSorted(
+                clothes.flatMap(function (item) {
+                    return Array.isArray(item.conditions) ? item.conditions : [];
+                })
+            );
+
+            fillSelect(filterMainCategory, "全部大類", categories, previousMainCategory);
+            fillSelect(filterColor, "全部顏色", colors, previousColor);
+            fillSelect(filterCondition, "全部衣況", conditions, previousCondition);
+        }
+
+        function uniqueSorted(values) {
+            return [...new Set(values.filter(Boolean))].sort(function (a, b) {
+                return a.localeCompare(b, "zh-Hant");
+            });
+        }
+
+        function fillSelect(selectElement, firstText, values, previousValue) {
+            selectElement.innerHTML = "";
+
+            const allOption = document.createElement("option");
+            allOption.value = "";
+            allOption.textContent = firstText;
+            selectElement.appendChild(allOption);
+
+            values.forEach(function (value) {
+                const option = document.createElement("option");
+                option.value = value;
+                option.textContent = value;
+                selectElement.appendChild(option);
+            });
+
+            if (values.includes(previousValue)) {
+                selectElement.value = previousValue;
+            }
+        }
+
+        function getFilteredClothes() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            const category = filterMainCategory.value;
+            const color = filterColor.value;
+            const condition = filterCondition.value;
+
+            return clothes.filter(function (item) {
+                const itemMainColor = item.mainColor || item.colorName || "";
+                const itemDetailColor = item.detailColor || "";
+                const itemConditions = Array.isArray(item.conditions) ? item.conditions : [];
+
+                const searchableText = [
+                    item.mainCategory || "",
+                    item.subCategory || "",
+                    itemMainColor,
+                    itemDetailColor,
+                    ...itemConditions,
+                    item.notes || ""
+                ].join(" ").toLowerCase();
+
+                const matchesKeyword = !keyword || searchableText.includes(keyword);
+                const matchesCategory = !category || item.mainCategory === category;
+                const matchesColor = !color || itemMainColor === color;
+                const matchesCondition = !condition || itemConditions.includes(condition);
+
+                return matchesKeyword && matchesCategory && matchesColor && matchesCondition;
+            });
+        }
 
         function renderWardrobe() {
-
             wardrobeList.innerHTML = "";
 
-            clothes.forEach(
-                function (item) {
+            const filteredClothes = getFilteredClothes();
+            resultCount.textContent = `顯示 ${filteredClothes.length} / ${clothes.length} 件衣服`;
 
-                    const card =
-                        document.createElement("div");
+            if (filteredClothes.length === 0) {
+                const emptyState = document.createElement("div");
+                emptyState.className = "empty-state";
+                emptyState.textContent = clothes.length === 0
+                    ? "衣櫃目前還是空的，先新增第一件衣服吧。"
+                    : "沒有找到符合搜尋或篩選條件的衣服。";
+                wardrobeList.appendChild(emptyState);
+                return;
+            }
 
-                    card.className =
-                        "clothes-card";
+            filteredClothes.forEach(function (item) {
+                const card = document.createElement("article");
+                card.className = "clothes-card";
 
-                    const conditionText =
-                        item.conditions &&
-                        item.conditions.length > 0
-                            ? item.conditions.join("、")
-                            : "無特別註記";
+                const image = document.createElement("img");
+                image.src = item.image || "";
+                image.alt = `${item.mainCategory || "衣服"} ${item.subCategory || ""}`.trim();
+                card.appendChild(image);
 
-                    card.innerHTML = `
+                const body = document.createElement("div");
+                body.className = "card-body";
 
-                        <img
-                            src="${item.image}"
-                            alt="衣服照片"
-                        >
+                const title = document.createElement("h3");
+                title.textContent = `${item.mainCategory || "未分類"} ／ ${item.subCategory || "未分類"}`;
+                body.appendChild(title);
 
-                        <h3>
-                            ${item.mainCategory}
-                            ／
-                            ${item.subCategory}
-                        </h3>
+                const mainColor = item.mainColor || item.colorName || "未填寫";
+                const detailColor = item.detailColor || "";
 
-                        <p>
-                            顏色名稱：
-                            ${item.colorName || "未填寫"}
-                        </p>
+                const colorParagraph = document.createElement("p");
+                const colorLine = document.createElement("span");
+                colorLine.className = "color-line";
 
-                        ${
-                            item.colorHex
-
-                            ?
-
-                            `
-                                <p>
-                                    實際色碼：
-                                    ${item.colorHex}
-                                </p>
-                            `
-
-                            :
-
-                            ""
-                        }
-
-                        <p>
-                            衣服狀況：
-                            ${conditionText}
-                        </p>
-
-                        <p>
-                            備註：
-                            ${item.notes || "無"}
-                        </p>
-
-                    `;
-
-                    wardrobeList.appendChild(card);
-
+                if (item.colorHex) {
+                    const dot = document.createElement("span");
+                    dot.className = "color-dot";
+                    dot.style.backgroundColor = item.colorHex;
+                    colorLine.appendChild(dot);
                 }
-            );
 
+                const colorText = document.createElement("span");
+                colorText.textContent = detailColor
+                    ? `顏色：${mainColor}／${detailColor}${item.colorHex ? `／${item.colorHex}` : ""}`
+                    : `顏色：${mainColor}${item.colorHex ? `／${item.colorHex}` : ""}`;
+
+                colorLine.appendChild(colorText);
+                colorParagraph.appendChild(colorLine);
+                body.appendChild(colorParagraph);
+
+                const conditionParagraph = document.createElement("p");
+                const conditionText = Array.isArray(item.conditions) && item.conditions.length > 0
+                    ? item.conditions.join("、")
+                    : "無特別註記";
+                conditionParagraph.textContent = `衣服狀況：${conditionText}`;
+                body.appendChild(conditionParagraph);
+
+                const notesParagraph = document.createElement("p");
+                notesParagraph.textContent = `備註：${item.notes || "無"}`;
+                body.appendChild(notesParagraph);
+
+                const actions = document.createElement("div");
+                actions.className = "card-actions";
+
+                const editButton = document.createElement("button");
+                editButton.type = "button";
+                editButton.className = "small-button";
+                editButton.textContent = "修改";
+                editButton.addEventListener("click", function () {
+                    startEdit(item);
+                });
+
+                const deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.className = "danger-button";
+                deleteButton.textContent = "刪除";
+                deleteButton.addEventListener("click", function () {
+                    removeClothes(item);
+                });
+
+                actions.appendChild(editButton);
+                actions.appendChild(deleteButton);
+                body.appendChild(actions);
+
+                card.appendChild(body);
+                wardrobeList.appendChild(card);
+            });
         }
 
+        function compressImage(file) {
+            return new Promise(function (resolve, reject) {
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    const image = new Image();
+
+                    image.onload = function () {
+                        const maxDimension = 700;
+
+                        let width = image.width;
+                        let height = image.height;
+
+                        const largestSide = Math.max(width, height);
+
+                        if (largestSide > maxDimension) {
+                            const scale = maxDimension / largestSide;
+                            width = Math.round(width * scale);
+                            height = Math.round(height * scale);
+                        }
+
+                        const canvas = document.createElement("canvas");
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const context = canvas.getContext("2d");
+                        context.fillStyle = "#ffffff";
+                        context.fillRect(0, 0, width, height);
+                        context.drawImage(image, 0, 0, width, height);
+
+                        let quality = 0.75;
+                        let dataUrl = canvas.toDataURL("image/jpeg", quality);
+
+                        while (estimateDataUrlBytes(dataUrl) > 650000 && quality > 0.35) {
+                            quality -= 0.1;
+                            dataUrl = canvas.toDataURL("image/jpeg", quality);
+                        }
+
+                        if (estimateDataUrlBytes(dataUrl) > 800000) {
+                            reject(new Error("照片壓縮後仍然太大，請改用較小的照片。"));
+                            return;
+                        }
+
+                        resolve(dataUrl);
+                    };
+
+                    image.onerror = function () {
+                        reject(new Error("無法讀取這張圖片。"));
+                    };
+
+                    image.src = event.target.result;
+                };
+
+                reader.onerror = function () {
+                    reject(new Error("無法讀取圖片檔案。"));
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function estimateDataUrlBytes(dataUrl) {
+            const base64 = dataUrl.split(",")[1] || "";
+            return Math.ceil(base64.length * 3 / 4);
+        }
+
+        clearForm();
     </script>
-
 </body>
-
 </html>
